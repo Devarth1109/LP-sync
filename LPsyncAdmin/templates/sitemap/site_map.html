@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>LP SYNC</title>
+	<link rel="stylesheet"
+		href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+	<link rel="stylesheet" href="{% static 'assets/plugins/fontawesome-free/css/all.min.css'%}">
+	<link rel="stylesheet" href="{% static 'assets/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css'%}">
+	<link rel="stylesheet" href="{% static 'assets/plugins/datatables-responsive/css/responsive.bootstrap4.min.css'%}">
+	<link rel="stylesheet" href="{% static 'assets/plugins/datatables-buttons/css/buttons.bootstrap4.min.css'%}">
+	<link rel="stylesheet" href="{% static 'assets/dist/css/adminlte.min.css'%}">
+
+	<style>
+		/* Enhanced product count styling */
+		.product-count {
+			font-weight: bold;
+			position: relative;
+		}
+
+		.count-badge {
+			display: inline-block;
+			padding: 3px 8px;
+			border-radius: 10px;
+			font-size: 0.8em;
+			margin-left: 5px;
+			background-color: #28a745;
+			color: white;
+			opacity: 0;
+			transition: opacity 0.3s ease;
+		}
+
+		.fadeIn {
+			animation: fadeIn 0.5s forwards;
+		}
+
+		.fadeOut {
+			animation: fadeOut 0.5s forwards;
+		}
+
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+			}
+
+			to {
+				opacity: 1;
+			}
+		}
+
+		@keyframes fadeOut {
+			from {
+				opacity: 1;
+			}
+
+			to {
+				opacity: 0;
+			}
+		}
+
+		/* Pulse effect for count updates */
+		.text-success {
+			animation: pulse 1s ease;
+		}
+
+		@keyframes pulse {
+			0% {
+				transform: scale(1);
+			}
+
+			50% {
+				transform: scale(1.1);
+				color: #28a745;
+			}
+
+			100% {
+				transform: scale(1);
+			}
+		}
+
+		/* Improved loader overlay */
+		#loader-overlay {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(0, 0, 0, 0.5);
+			z-index: 9999;
+			display: none;
+			transition: opacity 0.3s ease;
+		}
+
+		#loader {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			text-align: center;
+		}
+
+		#loader p {
+			color: white;
+			margin-top: 10px;
+			font-weight: bold;
+		}
+
+		/* Button spinner animation */
+		.btn .fa-spinner {
+			margin-right: 5px;
+		}
+
+		.card-tools {
+			display: flex;
+			flex-wrap: nowrap;
+			align-items: center;
+		}
+
+        .card-tools.gap-2 > * {
+            margin-right: 12px;
+        }
+        .card-tools.gap-2 > *:last-child {
+            margin-right: 0;
+        }
+        .btn-sitemap-action {
+            min-width: 130px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            font-size: 15px;
+            border-radius: 6px;
+        }
+	</style>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="hold-transition sidebar-mini">
+	<div class="wrapper">
+		<nav class="main-header navbar navbar-expand navbar-white navbar-light">	
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+                </li>
+            </ul>		
+			<ul class="navbar-nav ml-auto">
+				<li class="nav-item dropdown">
+					<a class="nav-link" data-toggle="dropdown" href="#">
+						<i class="far fa-bell"></i>
+						<span class="badge badge-warning navbar-badge">15</span>
+					</a>
+					<div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+						<span class="dropdown-item dropdown-header">15 Notifications</span>
+						<div class="dropdown-divider"></div>
+						<a href="#" class="dropdown-item">
+							<i class="fas fa-envelope mr-2"></i> 4 new messages
+							<span class="float-right text-muted text-sm">3 mins</span>
+						</a>
+						<div class="dropdown-divider"></div>
+						<a href="#" class="dropdown-item">
+							<i class="fas fa-users mr-2"></i> 8 friend requests
+							<span class="float-right text-muted text-sm">12 hours</span>
+						</a>
+						<div class="dropdown-divider"></div>
+						<a href="#" class="dropdown-item">
+							<i class="fas fa-file mr-2"></i> 3 new reports
+							<span class="float-right text-muted text-sm">2 days</span>
+						</a>
+						<div class="dropdown-divider"></div>
+						<a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
+					</div>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" data-widget="fullscreen" href="#" role="button">
+						<i class="fas fa-expand-arrows-alt"></i>
+					</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button">
+						<i class="fas fa-th-large"></i>
+					</a>
+				</li>
+                {% if request.session.email %}
+                <li class="btn btn-danger"><a href="{% url 'logout' %}" style="color: #fff;">Logout</a></li>
+                {% else %}
+                <li class="breadcrumb-item"><a href="{% url 'base' %}">Home</a></li>
+                <li class="breadcrumb-item active">Dashboard v1</li>
+                {% endif %}
+			</ul>
+		</nav>
+		
+		<aside class="main-sidebar sidebar-dark-primary elevation-4">
+			<a href="{% url 'base' %}" class="brand-link">
+				<img src="{% static 'linen.png'%}" alt="LP SYNC" class="lp-sync-logo"
+					style="opacity: .8; width: 180px;">
+			</a>
+			<div class="sidebar">
+				<div class="user-panel mt-3 pb-3 mb-3 d-flex">
+                    <div class="info d-flex flex-column align-items-start">
+                        <a class="d-block">
+                        <i class='fas fa-user-circle' style='font-size:20px'></i>
+                        {{ user.username }}
+                        </a>
+                    </div>
+                </div>
+
+				<nav class="mt-2">
+					<ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
+						data-accordion="false">
+						<li class="nav-item">
+							<a href="{% url 'project-view' pk=user.pk %}" class="nav-link">
+								<i class="fa fa-cubes" aria-hidden="true"></i>
+								<p>
+									Projects
+								</p>
+							</a>
+						</li>
+						<li class="nav-item">
+                            <a href="{% url 's_cards' %}" class="nav-link">
+                                <i class="fa fa-sitemap" aria-hidden="true"></i>
+                                <p>
+                                Sitemaps
+                                </p>
+                            </a>
+                        </li>
+						<li class="nav-item">
+							<a href="{% url 'p_cards' %}" class="nav-link">
+								<i class="fa fa-boxes" aria-hidden="true"></i>
+								<p>
+								Products
+								</p>
+							</a>
+						</li>
+
+						<li class="nav-item">
+							<a href="{% url 'product_errors' pk=user.pk %}" class="nav-link">
+								<i class="fas fa-bug" aria-hidden="true"></i>
+								<p>
+									Products With Errors
+								</p>
+							</a>
+						</li>
+
+                        <li class="nav-item">
+                            <a href="{% url 'project_sync_card' %}" class="nav-link">
+                                <i class="fas fa-sync-alt" aria-hidden="true"></i>
+                                <p>
+                                    Project Configurations
+                                </p>
+                            </a>
+                        </li>
+					</ul>
+				</nav>
+			</div>
+		</aside>
+
+		<div class="content-wrapper">
+            <section class="content-header">
+                <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                    </div>
+                    <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'base' %}">Home</a></li>
+                        <li class="breadcrumb-item active">Sitemap</li>
+                    </ol>
+                    </div>
+                </div>
+                </div><!-- /.container-fluid -->
+            </section>
+			<section class="content">
+				<div class="container-fluid">
+					<div class="row">
+						<div class="col-12">
+							<div class="card">
+								<div class="card-header" style="background-color: #cfdbe8; display: flex; align-items: center; justify-content: space-between; padding: 1.2rem 1.5rem; border-radius: 8px 8px 0 0;">
+                                    <h4 class="card-title mb-0" style="color: #080322; font-size: 1.35rem; font-weight: 600;">Sitemap Table</h4>
+                                    <div class="card-tools d-flex gap-2" style="margin-left: auto;">
+                                        <a href="{% url 's_cards' %}" class="btn btn-outline-secondary btn-sm btn-sitemap-action">Back</a>
+                                        <a href="{% url 'addsitemap' pk=user.pk %}" class="btn btn-outline-primary btn-sm btn-sitemap-action">Add Sitemap</a>
+                                        <a href="{% url 'deleteall_sitemap' project.id %}" class="btn btn-outline-danger btn-sm btn-sitemap-action">Delete All</a>
+                                        <button id="scrape-all-btn" class="btn btn-outline-success btn-sm btn-sitemap-action">Scrape All</button>
+                                        <button id="scrape-selected-btn" class="btn btn-outline-warning btn-sm btn-sitemap-action">Scrape Selected</button>
+                                    </div>
+                                </div>
+								<div class="card-body">
+									<table id="example2" class="table table-bordered table-hover">
+										<thead style="background: linear-gradient(to right, #1e3c72, #080322); color: #ffffff;">
+											<tr>
+												<th>
+													<input type="checkbox" id="select-all-checkbox">
+												</th>
+												<th>ID</th>
+												<th>Sitemap/Category URL</th>
+												<th>Sitemap</th>
+                                                <th>Project</th>
+												<th>Products</th>
+												<th>Sync</th>
+												<th>Scrape</th>
+												<th>Action</th>
+											</tr>
+										</thead>
+										<tbody>
+											{% for sitemap in sitemaps %}
+											<tr>
+												<td><input type="checkbox" id="sitemap-{{ sitemap.id }}"
+														class="row-checkbox"></td>
+												<td>{{ forloop.counter }}</td>
+												<td>{{ sitemap.url }}</td>
+												<td>{{ sitemap.category }}</td>
+                                                <td>{{ sitemap.project }}</td>
+												<td id="product-count-{{ sitemap.id }}" class="product-count" data-sitemap-id="{{ sitemap.id }}">
+													<span id="product-count-value-{{ sitemap.id }}">{{ sitemap.product_count|default:0 }}</span>
+													<!-- <span id="product-count-changes-{{ sitemap.id }}" class="count-badge" style="display: none;"></span> -->
+												</td>
+												<td>
+													<form id="sync-script" action="{% url 'run_script' sitemap.id %}"
+														method="post">
+														{% csrf_token %}
+														<input type="hidden" id="{{ sitemap.id }}"
+
+															value="{{ sitemap.id }}" name="id">
+														<input type="hidden" value="{{ sitemap.url }}" name="url">
+														<button type="submit"
+															class="btn btn-block btn-warning btn-sm">Sync
+															Product</button>
+													</form>
+												</td>
+												<td>
+    <form id="scrape-script-{{ sitemap.id }}" class="form-script"
+        action="{% url 'scrape' sitemap.id %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" value="{{ sitemap.id }}" name="id">
+        <input type="hidden" value="{{ sitemap.url }}" name="url">
+        <button type="submit" id="submit-url-{{ sitemap.id }}"
+
+            class="btn btn-block btn-success btn-sm scrape-button" disabled
+            data-sitemap-id="{{ sitemap.id }}">
+            <span class="scrape-btn-text">Scrape Product</span>
+            <span id="scrape-loader-{{ sitemap.id }}" class="scrape-loader" style="display:none;">
+                <i class="fas fa-spinner fa-spin"></i> Scraping...
+            </span>
+        </button>
+    </form>
+</td>
+												<td>
+													<div class="btn-group">
+														<button type="button" class="btn btn-info">Action</button>
+														<button type="button"
+															class="btn btn-info dropdown-toggle dropdown-icon"
+															data-toggle="dropdown">
+															<span class="sr-only">Toggle Dropdown</span>
+														</button>
+														<div class="dropdown-menu" role="menu">
+															<a href="{% url 'editsitemap' sitemap.id %}"
+																class="dropdown-item">Edit</a>
+															<a href="{% url 'deletesitemap' sitemap.id %}"
+																class="dropdown-item">Delete</a>
+														</div>
+													</div>
+												</td>
+											</tr>
+											{% endfor %}
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+		</div>
+		 <form id="csrf-form" style="display: none;">
+			{% csrf_token %}
+		</form>
+		<footer class="main-footer">
+			<strong>© 2025 <a href="https://www.webcreta.com/">Webcreta Technologies</a>.</strong>
+			All Rights Reserved.
+		</footer>
+		<aside class="control-sidebar control-sidebar-dark">
+			<!-- Control sidebar content goes here -->
+		</aside>
+	</div>
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			const selectAllCheckbox = document.getElementById('select-all-checkbox');
+			const checkboxes = document.querySelectorAll('.row-checkbox');
+
+			selectAllCheckbox.addEventListener('change', function () {
+				checkboxes.forEach(function (checkbox) {
+					checkbox.checked = selectAllCheckbox.checked;
+				});
+			});
+		});
+	</script>
+
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+(function ($) {
+    // --- WebSocket Management ---
+    const websockets = {};
+    const reconnectAttempts = {};
+    const maxReconnectAttempts = 10;
+    const lastMessageTimestamp = {};
+
+    function initWebSocket(sitemapId) {
+        if (websockets[sitemapId] && websockets[sitemapId].readyState !== WebSocket.CLOSED) {
+            websockets[sitemapId].close();
+        }
+        reconnectAttempts[sitemapId] = reconnectAttempts[sitemapId] || 0;
+
+        const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+        const wsUrl = `${protocol}${window.location.host}/ws/sitemap/${sitemapId}/scrape/`;
+        const ws = new WebSocket(wsUrl);
+
+        ws.onopen = function () {
+            reconnectAttempts[sitemapId] = 0;
+            $(`#websocket-error-${sitemapId}`).remove();
+            setTimeout(() => $(`#websocket-status-${sitemapId}`).fadeOut(500, function () { $(this).remove(); }), 5000);
+        };
+
+        ws.onmessage = function (e) {
+            try {
+                const data = JSON.parse(e.data);
+                if (data.type === 'connection_established') return;
+
+                // Product count update
+                if (data.count) {
+                    const messageTimestamp = data.count.timestamp || 0;
+                    if (!lastMessageTimestamp[sitemapId] || messageTimestamp > lastMessageTimestamp[sitemapId]) {
+                        lastMessageTimestamp[sitemapId] = messageTimestamp;
+                        const $currentCount = $(`#product-count-value-${sitemapId}`);
+                        const $changes = $(`#product-count-changes-${sitemapId}`);
+                        const saved = data.count.saved || 0;
+                        const updated = data.count.updated || 0;
+                        const total = data.count.total || 0;
+                        if (total > 0) $currentCount.text(total);
+
+                        if (saved > 0 || updated > 0) {
+                            let changesText = '';
+                            if (saved > 0) changesText += `+${saved} new`;
+                            if (updated > 0) changesText += (changesText ? ', ' : '') + `${updated} updated`;
+                            $changes.text(changesText).removeClass('fadeOut').addClass('fadeIn').show();
+                            $currentCount.addClass('text-success');
+                            setTimeout(() => $currentCount.removeClass('text-success'), 1000);
+                            clearTimeout($changes.data('hideTimeout'));
+                            const hideTimeout = setTimeout(() => {
+                                $changes.removeClass('fadeIn').addClass('fadeOut');
+                                setTimeout(() => $changes.hide(), 500);
+                            }, 10000);
+                            $changes.data('hideTimeout', hideTimeout);
+                        }
+                    }
+                }
+
+                // Scrape complete
+                if (data.type === 'scrape_complete') {
+                    const completedSitemapId = data.sitemap_id.toString();
+
+                    // Handle Scrape All completion
+                    if (completedSitemapId === 'all') {
+                        const isScrapeAllActive = JSON.parse(localStorage.getItem('scrape_all_active')) || false;
+                        if (isScrapeAllActive) {
+                            localStorage.removeItem('scrape_all_active');
+                            localStorage.removeItem('scrape_all_ids');
+                            localStorage.removeItem('scrape_all_completed_ids');
+                            $('#scrape-all-btn, #scrape-selected-btn').prop('disabled', false);
+                            $('.scrape-button').prop('disabled', false).find('.scrape-btn-text').show();
+                            $('.scrape-loader').hide();
+                            $('[id^="scrape-all-loader-"]').remove();
+                            $('#loader-overlay').hide();
+                            batchScraping = false;
+                            batchIds = [];
+                            batchIndex = 0;
+                            localStorage.removeItem('batch_scraping');
+                            localStorage.removeItem('batch_scraping_ids');
+                            localStorage.removeItem('batch_scraping_index');
+                            updateBatchUI();
+                            Swal.fire({
+                                title: "Scrape All Complete",
+                                text: "All sitemaps have been scraped successfully.",
+                                icon: "success"
+                            });
+                        }
+                        return;
+                    }
+
+                    // Scrape All Individual sitemap completion (legacy support)
+                    const isScrapeAllActive = JSON.parse(localStorage.getItem('scrape_all_active')) || false;
+                    const scrapeAllIds = JSON.parse(localStorage.getItem('scrape_all_ids')) || [];
+                    let scrapeAllCompletedIds = JSON.parse(localStorage.getItem('scrape_all_completed_ids')) || [];
+
+                    if (isScrapeAllActive && scrapeAllIds.includes(completedSitemapId)) {
+                        if (!scrapeAllCompletedIds.includes(completedSitemapId)) {
+                            scrapeAllCompletedIds.push(completedSitemapId);
+                            localStorage.setItem('scrape_all_completed_ids', JSON.stringify(scrapeAllCompletedIds));
+                        }
+                        $(`#scrape-all-loader-${completedSitemapId}`).html('<i class="fas fa-check text-success"></i> Completed');
+                        if (scrapeAllCompletedIds.length === scrapeAllIds.length) {
+                            localStorage.removeItem('scrape_all_active');
+                            localStorage.removeItem('scrape_all_ids');
+                            localStorage.removeItem('scrape_all_completed_ids');
+                            $('#scrape-all-btn, #scrape-selected-btn').prop('disabled', false);
+                            $('.scrape-button').prop('disabled', false).find('.scrape-btn-text').show();
+                            $('.scrape-loader').hide();
+                            $('[id^="scrape-all-loader-"]').remove();
+                            $('#loader-overlay').hide();
+                            batchScraping = false;
+                            batchIds = [];
+                            batchIndex = 0;
+                            updateBatchUI();
+                            Swal.fire({
+                                title: "Scrape All Complete",
+                                text: "All sitemaps have been scraped successfully.",
+                                icon: "success"
+                            });
+                        }
+                        return;
+                    }
+
+                    // Scrape Selected logic
+                    const isSelectedScraping = JSON.parse(localStorage.getItem('selected_scraping')) || false;
+                    const selectedIds = JSON.parse(localStorage.getItem('selected_scraping_ids')) || [];
+                    let completedIds = JSON.parse(localStorage.getItem('selected_completed_ids')) || [];
+
+                    if (isSelectedScraping && selectedIds.includes(completedSitemapId)) {
+                        if (!completedIds.includes(completedSitemapId)) {
+                            completedIds.push(completedSitemapId);
+                            localStorage.setItem('selected_completed_ids', JSON.stringify(completedIds));
+                        }
+                        $(`#submit-url-${completedSitemapId} .scrape-btn-text`).show();
+                        $(`#scrape-loader-${completedSitemapId}`).hide();
+                        if (completedIds.length === selectedIds.length) {
+                            localStorage.removeItem('selected_scraping');
+                            localStorage.removeItem('selected_scraping_ids');
+                            localStorage.removeItem('selected_completed_ids');
+                            $('#scrape-all-btn, #scrape-selected-btn').prop('disabled', false);
+                            $('.scrape-button').prop('disabled', false);
+                            selectedIds.forEach(sid => {
+                                $(`#submit-url-${sid} .scrape-btn-text`).show();
+                                $(`#scrape-loader-${sid}`).hide();
+                            });
+                            $('#loader-overlay').hide();
+                            Swal.fire({
+                                title: "Batch Scraping Complete",
+                                text: "All selected sitemaps have been scraped successfully.",
+                                icon: "success"
+                            });
+                        }
+                    } else {
+                        // Individual scrape completion
+                        Swal.fire({
+                            title: "Scraping Complete",
+                            text: `Scraping is complete for sitemap ID ${completedSitemapId}.`,
+                            icon: "success"
+                        });
+                        localStorage.removeItem('scraping_sitemap_id'); // <-- This line ensures the flag is cleared!
+                        $(`#submit-url-${completedSitemapId}`).show().prop('disabled', false);
+                        $(`#scrape-loader-${completedSitemapId}`).hide();
+                        $(`#submit-url-${completedSitemapId} .scrape-btn-text`).show();
+                        $('#scrape-all-btn, #scrape-selected-btn').prop('disabled', false);
+                    }
+                    if (window.handleScrapeComplete) window.handleScrapeComplete(completedSitemapId);
+                    return;
+                }
+            } catch (error) {
+                console.error('Error processing WebSocket message:', error);
+            }
+        };
+
+        ws.onclose = function () {
+            $(`#websocket-status-${sitemapId}`).remove();
+            reconnectAttempts[sitemapId]++;
+            if (reconnectAttempts[sitemapId] > maxReconnectAttempts) {
+                if ($(`#websocket-error-${sitemapId}`).length === 0) {
+                    $(`#product-count-${sitemapId}`).append(
+                        `<div id="websocket-error-${sitemapId}" class="small text-danger mt-1">
+                        Connection failed. Refresh page to reconnect.
+                        </div>`
+                    );
+                }
+                return;
+            }
+            const backoffTime = Math.min(Math.pow(2, reconnectAttempts[sitemapId]) * 1000, 30000);
+            if (reconnectAttempts[sitemapId] > 1) {
+                if ($(`#websocket-error-${sitemapId}`).length === 0) {
+                    $(`#product-count-${sitemapId}`).append(
+                        `<div id="websocket-error-${sitemapId}" class="small text-warning mt-1">
+                        Reconnecting (${reconnectAttempts[sitemapId]}/${maxReconnectAttempts})...
+                        </div>`
+                    );
+                } else {
+                    $(`#websocket-error-${sitemapId}`).html(
+                        `Reconnecting (${reconnectAttempts[sitemapId]}/${maxReconnectAttempts})...`
+                    ).removeClass('text-danger').addClass('text-warning');
+                }
+            }
+            setTimeout(() => {
+                if (document.body.contains(document.getElementById(`product-count-${sitemapId}`))) {
+                    initWebSocket(sitemapId);
+                }
+            }, backoffTime);
+        };
+
+        ws.onerror = function (e) {
+            console.error(`WebSocket error for sitemap ${sitemapId}:`, e);
+        };
+
+        websockets[sitemapId] = ws;
+        return ws;
+    }
+
+    // Initialize WebSockets for all sitemaps
+    $(function () {
+        $('.product-count').each(function () {
+            const sitemapId = $(this).data('sitemap-id');
+            initWebSocket(sitemapId);
+        });
+        setInterval(() => {
+            for (const sitemapId in websockets) {
+                if (websockets[sitemapId] && websockets[sitemapId].readyState === WebSocket.OPEN) {
+                    initWebSocket(sitemapId);
+                }
+            }
+        }, 5 * 60 * 1000);
+        $(window).on('beforeunload', function () {
+            for (const sitemapId in websockets) {
+                if (websockets[sitemapId]) websockets[sitemapId].close();
+            }
+        });
+    });
+
+    // --- Batch Scraping State Management ---
+    let batchScraping = JSON.parse(localStorage.getItem('batch_scraping')) || false;
+    let batchIds = JSON.parse(localStorage.getItem('batch_scraping_ids')) || [];
+    let batchIndex = parseInt(localStorage.getItem('batch_scraping_index')) || 0;
+    let batchTimeout = null;
+
+    function updateBatchUI() {
+        const $scrapeAllBtn = $('#scrape-all-btn');
+        const $scrapeSelectedBtn = $('#scrape-selected-btn');
+        const $scrapeButtons = $('.scrape-button');
+
+        // Scrape All state
+        const isScrapeAllActive = JSON.parse(localStorage.getItem('scrape_all_active')) || false;
+        const scrapeAllIds = JSON.parse(localStorage.getItem('scrape_all_ids')) || [];
+        const scrapeAllCompletedIds = JSON.parse(localStorage.getItem('scrape_all_completed_ids')) || [];
+
+        // Scrape Selected state
+        const isSelectedScraping = JSON.parse(localStorage.getItem('selected_scraping')) || false;
+        const selectedIds = JSON.parse(localStorage.getItem('selected_scraping_ids')) || [];
+        const completedIds = JSON.parse(localStorage.getItem('selected_completed_ids')) || [];
+
+        // Individual scraping state
+        const scrapingId = localStorage.getItem('scraping_sitemap_id');
+
+        if (isScrapeAllActive && scrapeAllIds.length > 0) {
+            $scrapeAllBtn.add($scrapeSelectedBtn).prop('disabled', true).show();
+            $scrapeButtons.each(function () {
+                const sid = $(this).data('sitemap-id').toString();
+                $(this).show().prop('disabled', true);
+                $(this).find('.scrape-btn-text').hide();
+                $(this).find('.scrape-loader').show();
+                $(`#scrape-all-loader-${sid}`).remove();
+                if (scrapeAllCompletedIds.includes(sid)) {
+                    $(this).find('.scrape-loader').html('<i class="fas fa-check text-success"></i> Completed');
+                }
+            });
+            $('#loader-overlay').show();
+        } else if (isSelectedScraping && selectedIds.length > 0) {
+            $scrapeAllBtn.add($scrapeSelectedBtn).prop('disabled', true).show();
+            $scrapeButtons.each(function () {
+                const sid = $(this).data('sitemap-id').toString();
+                $(this).show();
+                $(`#scrape-all-loader-${sid}`).remove();
+                if (selectedIds.includes(sid)) {
+                    $(this).prop('disabled', true);
+                    if (completedIds.includes(sid)) {
+                        $(this).find('.scrape-btn-text').show();
+                        $(this).find('.scrape-loader').hide();
+                    } else {
+                        $(this).find('.scrape-btn-text').hide();
+                        $(this).find('.scrape-loader').show();
+                    }
+                } else {
+                    $(this).prop('disabled', true).find('.scrape-btn-text').show();
+                    $(this).find('.scrape-loader').hide();
+                }
+            });
+        } else if (batchScraping && batchIds.length > 0) {
+            $scrapeAllBtn.add($scrapeSelectedBtn).prop('disabled', true).show();
+            $scrapeButtons.each(function () {
+                const sid = $(this).data('sitemap-id').toString();
+                $(this).show();
+                $(`#scrape-all-loader-${sid}`).remove();
+                if (batchIds.includes(sid)) {
+                    $(this).prop('disabled', true).find('.scrape-btn-text').hide();
+                    $(this).find('.scrape-loader').show();
+                } else {
+                    $(this).prop('disabled', true).find('.scrape-btn-text').show();
+                    $(this).find('.scrape-loader').hide();
+                }
+            });
+        } else if (scrapingId) {
+            $scrapeAllBtn.add($scrapeSelectedBtn).prop('disabled', true);
+            $scrapeButtons.each(function () {
+                const sid = $(this).data('sitemap-id').toString();
+                if (sid === scrapingId) {
+                    $(this).prop('disabled', true).find('.scrape-btn-text').hide();
+                    $(this).find('.scrape-loader').show();
+                } else {
+                    $(this).prop('disabled', false).find('.scrape-btn-text').show();
+                    $(this).find('.scrape-loader').hide();
+                }
+            });
+        } else {
+            $scrapeAllBtn.add($scrapeSelectedBtn).prop('disabled', false).show();
+            $scrapeButtons.show().prop('disabled', false).find('.scrape-btn-text').show();
+            $scrapeButtons.find('.scrape-loader').hide();
+            $('[id^="scrape-all-loader-"]').remove();
+            $('#loader-overlay').hide();
+        }
+    }
+
+    // --- Scrape Selected Button Handler ---
+    $('#scrape-selected-btn').click(function (e) {
+        e.preventDefault();
+        const selectedIds = $('.row-checkbox:checked').map(function () {
+            return $(this).attr('id').replace('sitemap-', '');
+        }).get();
+        if (selectedIds.length === 0) {
+            alert("Please select at least one sitemap to scrape.");
+            return;
+        }
+        if (!confirm(`This will scrape ${selectedIds.length} selected sitemaps sequentially with a 90-second delay between each. Continue?`)) {
+            return;
+        }
+        localStorage.setItem('selected_scraping', JSON.stringify(true));
+        localStorage.setItem('selected_scraping_ids', JSON.stringify(selectedIds));
+        localStorage.setItem('selected_completed_ids', JSON.stringify([]));
+        $('#scrape-all-btn, #scrape-selected-btn').prop('disabled', true);
+        $('.scrape-button').prop('disabled', true);
+        selectedIds.forEach(sid => {
+            $(`#submit-url-${sid}`).prop('disabled', true).find('.scrape-btn-text').hide();
+            $(`#scrape-loader-${sid}`).show();
+        });
+        $('#loader-overlay').show();
+
+        $.ajax({
+            url: "{% url 'scrape_selected' %}",
+            type: 'POST',
+            data: {
+                'selected_ids': JSON.stringify(selectedIds),
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            dataType: 'json',
+            success: function () {},
+            error: function () {
+                localStorage.removeItem('selected_scraping');
+                localStorage.removeItem('selected_scraping_ids');
+                localStorage.removeItem('selected_completed_ids');
+                $('#loader-overlay').hide();
+                $('#scrape-all-btn, #scrape-selected-btn').prop('disabled', false);
+                $('.scrape-button').prop('disabled', false);
+                selectedIds.forEach(sid => {
+                    $(`#submit-url-${sid} .scrape-btn-text`).show();
+                    $(`#scrape-loader-${sid}`).hide();
+                });
+                alert("Failed to start scraping selected sitemaps.");
+            }
+        });
+    });
+
+    // --- Scrape All Button Handler ---
+    $('#scrape-all-btn').click(function (e) {
+        e.preventDefault();
+        if (!confirm("This will scrape all sitemaps sequentially with a 90-second delay between each. Continue?")) return;
+        const allSitemapIds = $('.scrape-button').map(function () {
+            return $(this).data('sitemap-id').toString();
+        }).get();
+        localStorage.setItem('scrape_all_active', JSON.stringify(true));
+        localStorage.setItem('scrape_all_ids', JSON.stringify(allSitemapIds));
+        localStorage.setItem('scrape_all_completed_ids', JSON.stringify([]));
+        updateBatchUI();
+        $('#loader-overlay').show();
+        $('#loader p').text('Starting to process all sitemaps. This may take some time...');
+        $.ajax({
+            url: "{% url 'scrape_all' %}",
+            type: 'GET',
+            dataType: 'json',
+            success: function (response) {
+                $('#success-message').html(`<div class="alert alert-success alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    <h5><i class="icon fas fa-check"></i> Success!</h5>
+                    ${response.success_message}
+                </div>`).show();
+            },
+            error: function (xhr) {
+                localStorage.removeItem('scrape_all_active');
+                localStorage.removeItem('scrape_all_ids');
+                localStorage.removeItem('scrape_all_completed_ids');
+                $('#loader-overlay').hide();
+                updateBatchUI();
+                $('#success-message').html(`<div class="alert alert-danger alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    <h5><i class="icon fas fa-ban"></i> Error!</h5>
+                    Failed to start scraping all sitemaps. Please try again later.
+                </div>`).show();
+                console.log(xhr.status + ': ' + xhr.responseText);
+            }
+        });
+    });
+
+    // --- Scrape Button Handler (Single) ---
+    $('.scrape-button').click(function (e) {
+        if (batchScraping || JSON.parse(localStorage.getItem('selected_scraping')) || JSON.parse(localStorage.getItem('scrape_all_active'))) {
+            Swal.fire({
+                title: "Batch Scraping In Progress",
+                text: "A batch scraping operation is running. Please wait until it completes.",
+                icon: "warning"
+            });
+            e.preventDefault();
+            return false;
+        }
+        e.preventDefault();
+        const $button = $(this);
+        const sitemapId = $button.data('sitemap-id');
+        const $form = $button.closest('form');
+        const scrapingFlag = localStorage.getItem('scraping_sitemap_id');
+        if (scrapingFlag && scrapingFlag !== sitemapId.toString()) {
+            Swal.fire({
+                title: "Sitemap Already Scraping",
+                text: `Sitemap ID ${scrapingFlag} is already being scraped. Please wait until it finishes.`,
+                icon: "warning"
+            });
+            return false;
+        }
+        localStorage.setItem('scraping_sitemap_id', sitemapId);
+        $button.prop('disabled', true).find('.scrape-btn-text').hide();
+        $button.find('.scrape-loader').show();
+        $('#scrape-all-btn, #scrape-selected-btn').prop('disabled', true);
+        $('#loader-overlay').show();
+        $('#loader p').text(`Starting to scrape products for sitemap ${sitemapId}`);
+        $.ajax({
+            url: $form.attr('action'),
+            type: 'POST',
+            data: $form.serialize(),
+            dataType: 'json',
+            success: function (response) {
+                setTimeout(() => $('#loader-overlay').hide(), 1000);
+                $('#success-message').html(`<div class="alert alert-success alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    <h5><i class="icon fas fa-check"></i> Success!</h5>
+                    ${response.success_message}
+                </div>`).show();
+            },
+            error: function (xhr) {
+                $('#loader-overlay').hide();
+                $button.prop('disabled', false).find('.scrape-btn-text').show();
+                $button.find('.scrape-loader').hide();
+                $('#scrape-all-btn, #scrape-selected-btn').prop('disabled', false);
+                $('#success-message').html(`<div class="alert alert-danger alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    <h5><i class="icon fas fa-ban"></i> Error!</h5>
+                    ${xhr.responseJSON ? xhr.responseJSON.error_message : 'Failed to start scraping.'}
+                </div>`).show();
+            }
+        });
+    });
+
+    // --- Restore UI State on Reload ---
+    $(function () {
+        updateBatchUI();
+        const scrapingId = localStorage.getItem('scraping_sitemap_id');
+        if (scrapingId) {
+            const $button = $(`#submit-url-${scrapingId}`);
+            $button.prop('disabled', true).find('.scrape-btn-text').hide();
+            $button.find('.scrape-loader').show();
+        }
+        if (batchScraping && batchIds.length > 0) updateBatchUI();
+        if (batchScraping && batchIds.length > 0 && batchIndex < batchIds.length) {
+            setTimeout(scrapeNextBatch, 1000);
+        }
+        const isScrapeAllActive = JSON.parse(localStorage.getItem('scrape_all_active')) || false;
+        if (isScrapeAllActive) {
+            const scrapeAllIds = JSON.parse(localStorage.getItem('scrape_all_ids')) || [];
+            const scrapeAllCompletedIds = JSON.parse(localStorage.getItem('scrape_all_completed_ids')) || [];
+            if (scrapeAllCompletedIds.length < scrapeAllIds.length) {
+                $('#loader-overlay').show();
+                $('#loader p').text('Scrape All operation in progress...');
+            }
+            updateBatchUI();
+        }
+        const isSelectedScraping = JSON.parse(localStorage.getItem('selected_scraping')) || false;
+        if (isSelectedScraping) {
+            const selectedIds = JSON.parse(localStorage.getItem('selected_scraping_ids')) || [];
+            const completedIds = JSON.parse(localStorage.getItem('selected_completed_ids')) || [];
+            if (completedIds.length < selectedIds.length) {
+                $('#loader-overlay').show();
+            }
+            updateBatchUI();
+        }
+    });
+
+    // --- WebSocket Scrape Complete Handler for Batch ---
+    window.handleScrapeComplete = function (sitemapId) {
+        if (batchScraping && batchIds[batchIndex] === sitemapId.toString()) {
+            const $button = $(`#submit-url-${sitemapId}`);
+            $button.prop('disabled', false).find('.scrape-btn-text').show();
+            $button.find('.scrape-loader').hide();
+            if (batchTimeout) clearTimeout(batchTimeout);
+            localStorage.removeItem('batch_scraping_current');
+            batchIndex++;
+            localStorage.setItem('batch_scraping_index', batchIndex);
+            if (batchIndex < batchIds.length) {
+                setTimeout(scrapeNextBatch, 90000);
+            } else {
+                localStorage.removeItem('batch_scraping');
+                localStorage.removeItem('batch_scraping_ids');
+                localStorage.removeItem('batch_scraping_index');
+                localStorage.removeItem('batch_scraping_current');
+                batchScraping = false;
+                batchIds = [];
+                batchIndex = 0;
+                updateBatchUI();
+                $('#loader-overlay').hide();
+            }
+        }
+    };
+
+    // --- Checkbox Select All ---
+    $('#select-all-checkbox').on('change', function () {
+        $('.row-checkbox').prop('checked', this.checked);
+    });
+
+    // --- Tooltip for checkboxes ---
+    $('.row-checkbox').attr('title', 'Select for batch scraping');
+
+    // --- Button Layout CSS ---
+    $('<style>')
+        .prop('type', 'text/css')
+        .html(`
+            #scrape-selected-btn { margin-left: 5px; display: inline-block; width: auto; }
+            #scrape-all-btn { display: inline-block; width: auto; }
+        `)
+        .appendTo('head');
+
+    // --- Show Django session messages if present ---
+    {% if request.session.scrape_all_message %}
+    $('#success-message').html(`<div class="alert alert-success alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+        <h5><i class="icon fas fa-check"></i> Success!</h5>
+        {{ request.session.scrape_all_message }}
+    </div>`).show();
+    {% endif %}
+    {% if request.session.scrape_all_error %}
+    $('#success-message').html(`<div class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+        <h5><i class="icon fas fa-ban"></i> Error!</h5>
+        {{ request.session.scrape_all_error }}
+    </div>`).show();
+    {% endif %}
+})(jQuery);
+</script>
+	<!-- script run end-->
+	<!-- jQuery -->
+	<script src="{% static 'assets/plugins/jquery/jquery.min.js'%}"></script>
+	<!-- Bootstrap 4 -->
+	<script src="{% static 'assets/plugins/bootstrap/js/bootstrap.bundle.min.js'%}"></script>
+	<!-- DataTables  & Plugins -->
+	<script src="{% static 'assets/plugins/datatables/jquery.dataTables.min.js'%}"></script>
+	<script src="{% static 'assets/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js'%}"></script>
+	<script src="{% static 'assets/plugins/datatables-responsive/js/dataTables.responsive.min.js'%}"></script>
+	<script src="{% static 'assets/plugins/datatables-responsive/js/responsive.bootstrap4.min.js'%}"></script>
+	<script src="{% static 'assets/plugins/datatables-buttons/js/dataTables.buttons.min.js'%}"></script>
+	<script src="{% static 'assets/plugins/datatables-buttons/js/buttons.bootstrap4.min.js'%}"></script>
+	<script src="{% static 'assets/plugins/jszip/jszip.min.js'%}"></script>
+	<script src="{% static 'assets/plugins/pdfmake/pdfmake.min.js'%}"></script>
+	<script src="{% static 'assets/plugins/pdfmake/vfs_fonts.js'%}"></script>
+	<script src="{% static 'assets/plugins/datatables-buttons/js/buttons.html5.min.js'%}"></script>
+	<script src="{% static 'assets/plugins/datatables-buttons/js/buttons.print.min.js'%}"></script>
+	<script src="{% static 'assets/plugins/datatables-buttons/js/buttons.colVis.min.js'%}"></script>
+	<!-- AdminLTE App -->
+	<script src="{% static 'assets/dist/js/adminlte.min.js'%}"></script>
+	<!-- AdminLTE for demo purposes -->
+	<!-- <script src="{% static 'assets/dist/js/demo.js'%}"></script> -->
+	<!-- Page specific script -->
+	<script>
+		$(function () {
+			$("#example1").DataTable({
+				"responsive": true, "lengthChange": false, "autoWidth": false,
+				"buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+			}).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+			$('#example2').DataTable({
+				"paging": true,
+				"lengthChange": false,
+				"searching": false,
+				"ordering": true,
+				"info": true,
+				"autoWidth": false,
+				"responsive": true,
+			});
+		});
+	</script>
+</body>
+</html>

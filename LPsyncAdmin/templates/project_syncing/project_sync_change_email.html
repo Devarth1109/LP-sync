@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Change Email</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-form {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-form h2 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+        .user-info {
+            background: rgba(27, 79, 114, 0.1);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            color: #1b4f72;
+            font-weight: 500;
+        }
+
+        .user-info i {
+            margin-right: 8px;
+            opacity: 0.8;
+        }
+
+        .login-form input[type="email"] {
+            width: 100%;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 50px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .login-form input[type="email"]:focus {
+            outline: none;
+            border-color: #1b4f72;
+            box-shadow: 0 0 0 3px rgba(27, 79, 114, 0.1);
+        }
+
+        .login-form button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #1b4f72 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .login-form button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(27, 79, 114, 0.3);
+        }
+
+        .message {
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            text-align: left;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            background: rgba(231, 76, 60, 0.1);
+            border-left: 4px solid #e74c3c;
+        }
+
+        .success-message {
+            color: #2ecc71;
+            background: rgba(46, 204, 113, 0.1);
+            border-left: 4px solid #2ecc71;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-form">
+        <form action="{% url 'project_sync_change_email' user.id %}" method="POST">
+            {% csrf_token %}
+            <h2>Change Email</h2>
+            <div class="user-info">
+                <i class="fas fa-user-circle"></i>
+                {{ user.username }}
+            </div>
+            <label for="email" style="display: none;">Email</label>
+            <input type="email" id="email" name="email" placeholder="New Email Address" required>
+            <button type="submit">Update Email</button>
+
+            {% if error %}
+            <div class="message error-message">{{ error }}</div>
+            {% elif success %}
+            <div class="message success-message">{{ success }}</div>
+            {% endif %}
+        </form>
+    </div>
+</body>
+
+</html>

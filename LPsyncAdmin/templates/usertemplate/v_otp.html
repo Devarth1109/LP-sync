@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Verify OTP</title>
+  <style>
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #f5f6fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+    }
+
+    .login-container {
+        background: #fff;
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .login-form h2 {
+        text-align: center;
+        margin-bottom: 25px;
+        color: #333;
+    }
+
+    .login-form input {
+        width: 100%;
+        padding: 12px;
+        margin: 8px 0 16px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        box-sizing: border-box;
+    }
+
+    .login-form button {
+        width: 100%;
+        padding: 12px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    .login-form button:hover {
+        background-color: #0056b3;
+    }
+
+    .signup-link {
+        text-align: center;
+        margin-top: 15px;
+    }
+
+    .signup-link a {
+        color: #007bff;
+        text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <form class="login-form" action="{% url 'v_otp' %}" method="POST">
+    {% csrf_token %}
+      <h2>Verify OTP</h2>
+      <input type="hidden" name="email" value="{{email}}">
+      <input type="hidden" name="uotp" value="{{otp}}">
+
+      <input type="text" name="otp" placeholder="OTP" required>
+      <button type="submit">Verify</button>
+    </form>
+  </div>
+</body>
+</html>

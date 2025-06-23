@@ -1,0 +1,28 @@
+<button class="btn btn-sm btn-info aline-inline mx-2" id="sync-script-data">Run Script</button>
+<script>
+    $(document).getElementById('run-script-button').addEventListener('click', function() {
+        $("#sync-script-data").click(function(e) {
+            e.preventDefault();
+
+            // Get the ID value associated with the button
+            var id = $(this).data('id');
+
+            // Collect the form data
+            var formData = {
+                'id': id,
+                'url': url,
+            };
+            $.ajax({
+                url: '/run-script/',
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    alert('Data saved successfully');
+                },
+                error: function(xhr, errmsg, err) {
+                    alert('Error: ' + errmsg);
+                }
+            });
+        });
+    });
+</script>

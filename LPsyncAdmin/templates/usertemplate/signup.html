@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Signup Page</title>
+  <style>
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #f5f6fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+    }
+
+    .signup-container {
+        background: #fff;
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .signup-form h2 {
+        text-align: center;
+        margin-bottom: 25px;
+        color: #333;
+    }
+
+    .signup-form input {
+        width: 100%;
+        padding: 12px;
+        margin: 8px 0 16px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        box-sizing: border-box;
+    }
+
+    .signup-form button {
+        width: 100%;
+        padding: 12px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    .signup-form button:hover {
+        background-color: #0056b3;
+    }
+
+    .login-link {
+        text-align: center;
+        margin-top: 15px;
+    }
+
+    .login-link a {
+        color: #007bff;
+        text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="signup-container">
+    <form class="signup-form" action="{% url 'signup' %}" method="POST">
+    {% csrf_token %}
+      <h2>Create Account</h2>
+      <input type="text" name="username" placeholder="User Name" required>
+      <input type="email" name="email" placeholder="Email" required>
+      <input type="password" name="pswd" placeholder="Password" required>
+      <input type="password" name="cpswd" placeholder="Confirm Password" required>
+      <button type="submit">Sign Up</button>
+      <p class="login-link">Already have an account? <a href="{% url 'login' %}">Login</a></p>
+    </form>
+  </div>
+</body>
+</html>
