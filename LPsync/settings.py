@@ -77,11 +77,11 @@ ASGI_APPLICATION = 'LPsync.asgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'lpsyncnew',
-        'USER': 'root',
-        'PASSWORD': 'Drn11@2003',
-        'HOST': 'lp-sync-c7eh.onrender.com', 
-        'PORT': '',
+        'NAME': 'dnfdgpshem',
+        'USER': 'dnfdgpshem',
+        'PASSWORD': 'FRQdPmX55z',
+        'HOST': '159.203.124.39',
+        'PORT': '3306',
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },
