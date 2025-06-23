@@ -16,6 +16,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['']
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://lp-sync-c7eh.onrender.com',
+]
+
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
