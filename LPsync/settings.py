@@ -80,7 +80,7 @@ DATABASES = {
         'NAME': 'lpsyncnew',
         'USER': 'root',
         'PASSWORD': 'Drn11@2003',
-        'HOST': 'localhost', 
+        'HOST': 'lp-sync-c7eh.onrender.com', 
         'PORT': '',
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
