@@ -16,5 +16,8 @@ class ProjectSyncing(models.Model):
     admin_email = models.EmailField(null=True, blank=True)
     admin_password = models.CharField(max_length=255, null=True, blank=True)
 
+    class Meta:
+        db_table = 'lpsyncadmin_projectsyncing'
+        
     def __str__(self):
         return f"{self.user.username} - {self.project.project_name} - {self.get_platform_display()}"
